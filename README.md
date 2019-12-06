@@ -1,11 +1,13 @@
 # RawQuic
 This project transmits raw quic data on client side without http2/spdy, but in QuicTransport protocol.
 [Draft](https://tools.ietf.org/html/draft-vvv-webtransport-quic)
-[Design](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#)
+[Design](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#).
 
 ## Chromium commit
 39a93ddee55830638c75d702effb8c8418e810aa
 After 80.0.3969.1
+
+You should build chromium and be able to continue to follow steps.
 
 ## Build librawquic
 
