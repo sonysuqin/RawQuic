@@ -1,7 +1,7 @@
 # RawQuic
 This project transmits raw quic data on client side without http2/spdy, but in QuicTransport protocol.
-[Draft](https://tools.ietf.org/html/draft-vvv-webtransport-quic)
-[Design](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#).
+[[Draft]](https://tools.ietf.org/html/draft-vvv-webtransport-quic)
+[[Design]](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#).
 
 This function provides ability to replace TCP with QUIC for some app, such as "RTMP OVER QUIC" which already implemented by Tencent not long before(last year).
 
