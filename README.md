@@ -1,5 +1,5 @@
 # RawQuic
-This project transmits raw quic data without http2/spdy, but in QuicTransport protocol.
+This project transmits raw quic data on client side without http2/spdy, but in QuicTransport protocol.
 [Draft](https://tools.ietf.org/html/draft-vvv-webtransport-quic)
 [Design](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#)
 
