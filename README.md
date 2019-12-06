@@ -3,9 +3,13 @@ This project transmits raw quic data on client side without http2/spdy, but in Q
 [Draft](https://tools.ietf.org/html/draft-vvv-webtransport-quic)
 [Design](https://docs.google.com/document/d/1UgviRBnZkMUq4OKcsAJvIQFX6UCXeCbOtX_wMgwD_es/edit#).
 
+This function provides ability to replace TCP with QUIC for some app, such as "RTMP OVER QUIC" which already implemented by Tencent not long before(last year).
+
+There's a simple QuicTransport echo server "quic_transport_simple_server" in chromium, and our formal support will be added on [nginx-quic](https://github.com/evansun922/nginx-quic) RTMP module with "RTMP OVER QUIC" function soon.
+
 ## Chromium commit
 39a93ddee55830638c75d702effb8c8418e810aa
-After 80.0.3969.1
+After 80.0.3969.1.
 
 You should build chromium and be able to continue to follow steps.
 
