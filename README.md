@@ -65,6 +65,6 @@ ninja -C out\Debug quic_transport_simple_server
 ```
 
 ### Build client test demo
-Sample code:raw_quic_test.cpp
+See sample code test/raw_quic_test.cpp
 
 Enjoy it.
