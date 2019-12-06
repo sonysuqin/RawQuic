@@ -58,13 +58,13 @@ ninja -C out\Debug librawquic
 
 ## Test
 
-### Server
+### Build and run server demo
 Build test echo server quic_transport_simple_server and run.
 ```
 ninja -C out\Debug quic_transport_simple_server
 ```
 
-### Build client test demo
+### Build and run client demo
 See sample code test/raw_quic_test.cpp
 
 Enjoy it.
