@@ -545,7 +545,7 @@ void RawQuic::OnCanRead() {
   if (read_buffer_.size() > 0) {
     read_cond_.notify_all();
     if (callback_.can_read_callback != nullptr) {
-      callback_.can_read_callback(read_buffer_.size());
+      callback_.can_read_callback(opaque_, read_buffer_.size());
     }
   }
 }

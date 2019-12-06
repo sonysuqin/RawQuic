@@ -61,7 +61,8 @@ typedef void(RAW_QUIC_CALLBACK* ConnectCallback)(void* opaque,
 typedef void(RAW_QUIC_CALLBACK* ErrorCallback)(void* opaque,
                                                RawQuicError* error);
 
-typedef void(RAW_QUIC_CALLBACK* CanReadCallback)(uint32_t size);
+typedef void(RAW_QUIC_CALLBACK* CanReadCallback)(void* opaque,
+                                                 uint32_t size);
 
 typedef struct RawQuicCallbacks {
   ConnectCallback connect_callback;
