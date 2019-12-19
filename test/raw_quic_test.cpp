@@ -13,17 +13,21 @@
 #endif
 #endif
 
-void TestConnectCallback(void* opaque, RawQuicError* error) {
+void TestConnectCallback(RawQuicHandle handle,
+                         RawQuicError* error,
+                         void* opaque) {
   printf("ConnectCallback %d %d %d\n", error->error, error->net_error,
          error->quic_error);
 }
 
-void TestErrorCallback(void* opaque, RawQuicError* error) {
+void TestErrorCallback(RawQuicHandle handle,
+                       RawQuicError* error,
+                       void* opaque) {
   printf("ErrorCallback %d %d %d\n", error->error, error->net_error,
          error->quic_error);
 }
 
-void TestCanReadCallback(void* opaque, uint32_t size) {
+void TestCanReadCallback(RawQuicHandle handle, uint32_t size, void* opaque) {
   printf("TestCanReadCallback %u\n", size);
 }
 
@@ -33,7 +37,7 @@ int main(int argc, char** argv) {
   callbacks.error_callback = TestErrorCallback;
   callbacks.can_read_callback = TestCanReadCallback;
 
-  int64_t handle = 0;
+  RawQuicHandle handle = nullptr;
 
   do {
     handle = RawQuicOpen(callbacks, nullptr, true);

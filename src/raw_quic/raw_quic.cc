@@ -158,6 +158,7 @@ int32_t RawQuic::Read(uint8_t* data, uint32_t size, int32_t timeout) {
     }
 
     std::unique_lock<std::mutex> lock(read_mutex_);
+    bool wait = true;
     while (read_buffer_.size() == 0) {
       // Try filling read buffer once, worker thread will gain
       // lock after current thread called wait or run out.
@@ -170,12 +171,14 @@ int32_t RawQuic::Read(uint8_t* data, uint32_t size, int32_t timeout) {
       } else if (timeout < 0) {
         read_cond_.wait(lock);
       } else {
+        wait = false;
         break;
       }
     }
 
     uint32_t read_len = std::min<uint32_t>(size, read_buffer_.size());
     if (read_len == 0) {
+      ret = wait ? RAW_QUIC_ERROR_CODE_TIMEOUT : RAW_QUIC_ERROR_CODE_EAGAIN;
       break;
     }
 
@@ -232,7 +235,7 @@ void RawQuic::DoConnect(const std::string& host,
     if (promise != nullptr) {
       promise->set_value(ret.error);
     } else if (callback_.connect_callback != nullptr) {
-      callback_.connect_callback(opaque_, &ret);
+      callback_.connect_callback(this, &ret, opaque_);
     }
   } else {
     connect_promise_ = promise;
@@ -262,7 +265,7 @@ void RawQuic::DoWrite(uint8_t* data, uint32_t size) {
     LOG(ERROR) << "Send buffer overflow.";
     if (callback_.error_callback != nullptr) {
       RawQuicError ret = {RAW_QUIC_ERROR_CODE_BUFFER_OVERFLOWED, 0, 0};
-      callback_.error_callback(opaque_, &ret);
+      callback_.error_callback(this, &ret, opaque_);
     }
     if (data != nullptr) {
       delete [] data;
@@ -457,7 +460,7 @@ void RawQuic::ReportError(RawQuicError* error) {
   int32_t status = status_.load();
   if (status == RAW_QUIC_STATUS_CONNECTED) {
     if (callback_.error_callback != nullptr) {
-      callback_.error_callback(opaque_, error);
+      callback_.error_callback(this, error, opaque_);
     }
   } else {
     if (connect_promise_ != nullptr) {
@@ -466,7 +469,7 @@ void RawQuic::ReportError(RawQuicError* error) {
       connect_promise_ = nullptr;
     } else {
       if (callback_.connect_callback != nullptr) {
-        callback_.connect_callback(opaque_, error);
+        callback_.connect_callback(this, error, opaque_);
       }
     }
   }
@@ -535,7 +538,7 @@ void RawQuic::OnConnectionOpened() {
     connect_promise_ = nullptr;
   } else if (callback_.connect_callback != nullptr) {
     RawQuicError ret = {RAW_QUIC_ERROR_CODE_SUCCESS, 0, 0};
-    callback_.connect_callback(opaque_, &ret);
+    callback_.connect_callback(this, &ret, opaque_);
   }
 }
 
@@ -545,7 +548,7 @@ void RawQuic::OnCanRead() {
   if (read_buffer_.size() > 0) {
     read_cond_.notify_all();
     if (callback_.can_read_callback != nullptr) {
-      callback_.can_read_callback(opaque_, read_buffer_.size());
+      callback_.can_read_callback(this, read_buffer_.size(), opaque_);
     }
   }
 }
