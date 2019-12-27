@@ -65,7 +65,10 @@ RawQuic::RawQuic(RawQuicCallbacks callback, void* opaque, bool verify)
 
 RawQuic::~RawQuic() {}
 
-int32_t RawQuic::Connect(const char* host, uint16_t port, int32_t timeout) {
+int32_t RawQuic::Connect(const char* host,
+                         uint16_t port,
+                         const char* path,
+                         int32_t timeout) {
   int32_t ret = RAW_QUIC_ERROR_CODE_SUCCESS;
   do {
     if (host == nullptr || port == 0) {
@@ -84,8 +87,9 @@ int32_t RawQuic::Connect(const char* host, uint16_t port, int32_t timeout) {
       promise.reset(new IntPromise);
     }
 
-    GetContext()->Post(base::Bind(&RawQuic::DoConnect, base::Unretained(this),
-                                  std::string(host), port, promise));
+    GetContext()->Post(base::Bind(
+        &RawQuic::DoConnect, base::Unretained(this), std::string(host), port,
+        path == NULL ? "" : std::string(path), promise));
 
     if (promise == NULL) {
       break;
@@ -201,12 +205,16 @@ void RawQuic::SetRecvBufferSize(uint32_t size) {
 
 void RawQuic::DoConnect(const std::string& host,
                         uint16_t port,
+                        const std::string& path,
                         IntPromisePtr promise) {
   RawQuicError ret = {RAW_QUIC_ERROR_CODE_SUCCESS, 0, 0};
   do {
     host_ = host;
     port_ = port;
-    server_id_ = quic::QuicServerId(host, port);
+    path_ = path;
+    std::string url = base::StringPrintf(
+        "quic-transport://%s:%d/%s", host_.c_str(), (int)port, path_.c_str());
+    url_ = GURL(url);
     status_.store(RAW_QUIC_STATUS_CONNECTING);
 
     net::AddressList address_list;
@@ -335,8 +343,8 @@ RawQuicError RawQuic::CreateSession(const net::IPEndPoint& dest) {
 
   session_ = std::make_unique<RawQuicSession>(
       std::move(connection), std::move(socket), GetContext()->GetQuicClock(),
-      this, this, DefaultQuicConfig(), GetVersions(), server_id_,
-      std::move(crypto_config), origin, this);
+      this, DefaultQuicConfig(), GetVersions(), url_, std::move(crypto_config),
+      origin, this);
   session_->Initialize();
   session_->CryptoConnect();
 
@@ -430,7 +438,7 @@ void RawQuic::FlushWriteBuffer() {
     }
 
     quic::QuicData& data = write_queue_.front();
-    if (!stream_->Write(quic::QuicStringPiece(data.data(), data.length()))) {
+    if (!stream_->Write(quiche::QuicheStringPiece(data.data(), data.length()))) {
       can_write_ = false;
       break;
     }
@@ -480,6 +488,23 @@ void RawQuic::OnClosed(RawQuicError* error) {
   status_.store(RAW_QUIC_STATUS_CLOSED);
 }
 
+void RawQuic::OnSessionReady() {
+  status_.store(RAW_QUIC_STATUS_CONNECTED);
+
+  std::unique_ptr<quic::QuicTransportStream::Visitor> stream_visitor =
+      std::make_unique<RawQuicStreamVisitor>(this);
+  stream_ = session_->OpenOutgoingBidirectionalStream();
+  stream_->set_visitor(std::move(stream_visitor));
+
+  if (connect_promise_ != nullptr) {
+    connect_promise_->set_value(RAW_QUIC_ERROR_CODE_SUCCESS);
+    connect_promise_ = nullptr;
+  } else if (callback_.connect_callback != nullptr) {
+    RawQuicError ret = {RAW_QUIC_ERROR_CODE_SUCCESS, 0, 0};
+    callback_.connect_callback(this, &ret, opaque_);
+  }
+}
+
 void RawQuic::OnIncomingBidirectionalStreamAvailable() {
   // TBD
 }
@@ -523,23 +548,6 @@ void RawQuic::OnRstStreamReceived(const quic::QuicRstStreamFrame& frame) {
 
 void RawQuic::OnStopSendingReceived(const quic::QuicStopSendingFrame& frame) {
   // TBD
-}
-
-void RawQuic::OnConnectionOpened() {
-  status_.store(RAW_QUIC_STATUS_CONNECTED);
-
-  std::unique_ptr<quic::QuicTransportStream::Visitor> stream_visitor =
-      std::make_unique<RawQuicStreamVisitor>(this);
-  stream_ = session_->OpenOutgoingBidirectionalStream();
-  stream_->set_visitor(std::move(stream_visitor));
-
-  if (connect_promise_ != nullptr) {
-    connect_promise_->set_value(RAW_QUIC_ERROR_CODE_SUCCESS);
-    connect_promise_ = nullptr;
-  } else if (callback_.connect_callback != nullptr) {
-    RawQuicError ret = {RAW_QUIC_ERROR_CODE_SUCCESS, 0, 0};
-    callback_.connect_callback(this, &ret, opaque_);
-  }
 }
 
 void RawQuic::OnCanRead() {

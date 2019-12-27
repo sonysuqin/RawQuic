@@ -16,27 +16,17 @@ namespace net {
 class RawQuicSession : public quic::QuicTransportClientSession,
                        public net::QuicChromiumPacketReader::Visitor {
  public:
-  class QUIC_EXPORT_PRIVATE Visitor {
-   public:
-    virtual ~Visitor() {}
-    virtual void OnConnectionOpened() = 0;
-  };
-
   RawQuicSession(std::unique_ptr<quic::QuicConnection> connection,
                  std::unique_ptr<net::DatagramClientSocket> socket,
                  quic::QuicClock* clock,
                  QuicSession::Visitor* owner,
-                 RawQuicSession::Visitor* raw_quic_visitor,
                  const quic::QuicConfig& config,
                  const quic::ParsedQuicVersionVector& supported_versions,
-                 const quic::QuicServerId& server_id,
+                 const GURL& url,
                  std::unique_ptr<quic::QuicCryptoClientConfig> crypto_config,
                  url::Origin origin,
                  QuicTransportClientSession::ClientVisitor* visitor);
   ~RawQuicSession() override;
-
-  // QuicSession
-  void OnCryptoHandshakeEvent(CryptoHandshakeEvent event) override;
 
     // net::QuicChromiumPacketReader::Visitor
   void OnReadError(int result, const DatagramClientSocket* socket) override;
@@ -50,7 +40,6 @@ class RawQuicSession : public quic::QuicTransportClientSession,
                           quic::QuicClock* clock);
 
  protected:
-  RawQuicSession::Visitor* raw_quic_visitor_;
   std::unique_ptr<net::DatagramClientSocket> socket_;
   std::unique_ptr<quic::QuicConnection> connection_;
   std::unique_ptr<quic::QuicCryptoClientConfig> crypto_config_;

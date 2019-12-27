@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
       break;
     }
 
-    int32_t ret = RawQuicConnect(handle, "testlive.hd.sohu.com", 4444, 0);
+    int32_t ret = RawQuicConnect(handle, "testlive.hd.sohu.com", 1935, "echo", 0);
     printf("RawQuicConnect return %d.\n", ret);
     if (ret != RAW_QUIC_ERROR_CODE_SUCCESS) {
       break;

@@ -12,10 +12,9 @@ RawQuicSession::RawQuicSession(
     std::unique_ptr<net::DatagramClientSocket> socket,
     quic::QuicClock* clock,
     QuicSession::Visitor* owner,
-    RawQuicSession::Visitor* raw_quic_visitor,
     const quic::QuicConfig& config,
     const quic::ParsedQuicVersionVector& supported_versions,
-    const quic::QuicServerId& server_id,
+    const GURL& url,
     std::unique_ptr<quic::QuicCryptoClientConfig> crypto_config,
     url::Origin origin,
     QuicTransportClientSession::ClientVisitor* visitor)
@@ -23,11 +22,10 @@ RawQuicSession::RawQuicSession(
                                  owner,
                                  config,
                                  supported_versions,
-                                 server_id,
+                                 url,
                                  crypto_config.get(),
                                  origin,
                                  visitor),
-      raw_quic_visitor_(raw_quic_visitor),
       socket_(std::move(socket)),
       connection_(std::move(connection)),
       crypto_config_ (std::move(crypto_config)) {
@@ -35,14 +33,6 @@ RawQuicSession::RawQuicSession(
 }
 
 RawQuicSession::~RawQuicSession() {}
-
-void RawQuicSession::OnCryptoHandshakeEvent(CryptoHandshakeEvent event) {
-  QuicTransportClientSession::OnCryptoHandshakeEvent(event);
-  if (event == quic::QuicSession::HANDSHAKE_CONFIRMED &&
-      raw_quic_visitor_ != nullptr) {
-    raw_quic_visitor_->OnConnectionOpened();
-  }
-}
 
 void RawQuicSession::OnReadError(int result,
                                  const DatagramClientSocket* socket) {

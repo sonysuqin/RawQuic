@@ -58,14 +58,16 @@ class RawQuicStreamVisitor : public quic::QuicTransportStream::Visitor {
 /////////////////////////////////////RawQuic/////////////////////////////////////
 class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
                 public quic::QuicSession::Visitor,
-                public net::RawQuicSession::Visitor,
                 public net::RawQuicStreamVisitor::DataDelegate {
  public:
   RawQuic(RawQuicCallbacks callback, void* opaque, bool verify);
   ~RawQuic() override;
 
  public:
-  int32_t Connect(const char* host, uint16_t port, int32_t timeout);
+  int32_t Connect(const char* host,
+                  uint16_t port,
+                  const char* path,
+                  int32_t timeout);
 
   void Close();
 
@@ -78,7 +80,10 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
   void SetRecvBufferSize(uint32_t size);
 
  protected:
-  void DoConnect(const std::string& host, uint16_t port, IntPromisePtr promise);
+  void DoConnect(const std::string& host,
+                 uint16_t port,
+                 const std::string& path,
+                 IntPromisePtr promise);
 
   void DoClose(IntPromisePtr promise);
 
@@ -114,6 +119,8 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
   void OnClosed(RawQuicError* error);
 
   // quic::QuicTransportClientSession::ClientVisitor
+  void OnSessionReady() override;
+
   void OnIncomingBidirectionalStreamAvailable() override;
 
   void OnIncomingUnidirectionalStreamAvailable() override;
@@ -130,9 +137,6 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
   void OnRstStreamReceived(const quic::QuicRstStreamFrame& frame) override;
 
   void OnStopSendingReceived(const quic::QuicStopSendingFrame& frame) override;
-
-  // net::RawQuicSession::Visitor
-  void OnConnectionOpened() override;
 
   // net::RawQuicStreamVisitor
   void OnCanRead() override;
@@ -155,7 +159,8 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
   // Endpoint.
   std::string host_;
   uint16_t port_ = 0;
-  quic::QuicServerId server_id_;
+  std::string path_;
+  GURL url_;
 
   // QUIC.
   std::unique_ptr<quic::QuicTransportClientSession> session_;

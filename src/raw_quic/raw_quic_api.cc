@@ -24,13 +24,14 @@ int32_t RAW_QUIC_CALL RawQuicClose(RawQuicHandle handle) {
 int32_t RAW_QUIC_CALL RawQuicConnect(RawQuicHandle handle,
                                      const char* host,
                                      uint16_t port,
+                                     const char* path,
                                      int32_t timeout) {
   if (handle == 0) {
     return RAW_QUIC_ERROR_CODE_INVALID_HANDLE;
   }
 
   net::RawQuic* raw_quic = (net::RawQuic*)handle;
-  return raw_quic->Connect(host, port, timeout);
+  return raw_quic->Connect(host, port, path, timeout);
 }
 
 int32_t RAW_QUIC_CALL RawQuicSend(RawQuicHandle handle,

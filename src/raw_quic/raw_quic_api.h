@@ -38,6 +38,7 @@ RAW_QUIC_API int32_t RAW_QUIC_CALL RawQuicClose(RawQuicHandle handle);
  *  @param  handle          RawQuic句柄.
  *  @param  host            服务端域名，注意QUIC必须加密，所以必须有域名及证书.
  *  @param  port            服务端端口.
+ *  @param  port            服务端路径.
  *  @param  timeout         超时时间，ms.
  *  @note   timeout非0时，为同步方法，会阻塞直到连接成功、失败、或者超时，
  *          当timeout为0时，为异步方法，connect_callback将被回调.
@@ -46,6 +47,7 @@ RAW_QUIC_API int32_t RAW_QUIC_CALL RawQuicClose(RawQuicHandle handle);
 RAW_QUIC_API int32_t RAW_QUIC_CALL RawQuicConnect(RawQuicHandle handle,
                                                   const char* host,
                                                   uint16_t port,
+                                                  const char* path,
                                                   int32_t timeout);
 
 /**
