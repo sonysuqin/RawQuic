@@ -513,6 +513,18 @@ void RawQuic::OnIncomingUnidirectionalStreamAvailable() {
   // TBD
 }
 
+void RawQuic::OnDatagramReceived(quiche::QuicheStringPiece datagram) {
+
+}
+
+void RawQuic::OnCanCreateNewOutgoingBidirectionalStream() {
+
+}
+
+void RawQuic::OnCanCreateNewOutgoingUnidirectionalStream() {
+
+}
+
 void RawQuic::OnConnectionClosed(quic::QuicConnectionId server_connection_id,
                                  quic::QuicErrorCode error,
                                  const std::string& error_details,

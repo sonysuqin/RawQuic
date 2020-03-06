@@ -20,7 +20,6 @@ RawQuicContext::RawQuicContext() : event_loop_("RawQuic") {
   WSADATA wsaData;
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
-  SetQuicReloadableFlag(quic_neuter_handshake_packets_once2, false);
 
   if (thread_ == nullptr) {
     thread_ = std::make_unique<base::Thread>("RawQuic");

@@ -125,6 +125,12 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
 
   void OnIncomingUnidirectionalStreamAvailable() override;
 
+  void OnDatagramReceived(quiche::QuicheStringPiece datagram) override;
+
+  void OnCanCreateNewOutgoingBidirectionalStream() override;
+
+  void OnCanCreateNewOutgoingUnidirectionalStream() override;
+
   // quic::QuicSession::Visitor
   void OnConnectionClosed(quic::QuicConnectionId server_connection_id,
                           quic::QuicErrorCode error,
