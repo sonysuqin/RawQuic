@@ -56,3 +56,30 @@ int32_t RAW_QUIC_CALL RawQuicRecv(RawQuicHandle handle,
   net::RawQuic* raw_quic = (net::RawQuic*)handle;
   return raw_quic->Read(data, size, timeout);
 }
+
+int32_t RAW_QUIC_CALL RawQuicGetRecvBufferDataSize(RawQuicHandle handle) {
+  if (handle == 0) {
+    return RAW_QUIC_ERROR_CODE_INVALID_HANDLE;
+  }
+
+  net::RawQuic* raw_quic = (net::RawQuic*)handle;
+  return raw_quic->GetRecvBufferDataSize();
+}
+
+void RawQuicSetSendBufferSize(RawQuicHandle handle, uint32_t size) {
+  if (handle == 0) {
+    return;
+  }
+
+  net::RawQuic* raw_quic = (net::RawQuic*)handle;
+  raw_quic->SetSendBufferSize(size);
+}
+
+uint32_t RAW_QUIC_CALL RawQuicGetSendBufferSize(RawQuicHandle handle) {
+  if (handle == 0) {
+    return 0;
+  }
+
+  net::RawQuic* raw_quic = (net::RawQuic*)handle;
+  return raw_quic->GetSendBufferSize();
+}

@@ -193,9 +193,18 @@ int32_t RawQuic::Read(uint8_t* data, uint32_t size, int32_t timeout) {
   return ret;
 }
 
+int32_t RawQuic::GetRecvBufferDataSize() {
+  std::unique_lock<std::mutex> lock(read_mutex_);
+  return (int32_t)read_buffer_.size();
+}
+
 void RawQuic::SetSendBufferSize(uint32_t size) {
   GetContext()->Post(
       base::Bind(&RawQuic::DoSetSendBufferSize, base::Unretained(this), size));
+}
+
+uint32_t RawQuic::GetSendBufferSize() {
+  return send_buffer_size_;
 }
 
 void RawQuic::SetRecvBufferSize(uint32_t size) {

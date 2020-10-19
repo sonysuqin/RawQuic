@@ -79,6 +79,28 @@ RAW_QUIC_API int32_t RAW_QUIC_CALL RawQuicRecv(RawQuicHandle handle,
                                                uint32_t size,
                                                int32_t timeout);
 
+
+/**
+ *  @brief  获取接收缓冲区的数据长度.
+ *  @param  handle          RawQuic句柄.
+ *  @return 接收缓冲区的数据长度.
+ */
+RAW_QUIC_API int32_t RAW_QUIC_CALL RawQuicGetRecvBufferDataSize(RawQuicHandle handle);
+
+/**
+ *  @brief  设置发送缓冲区大小.
+ *  @param  handle          RawQuic句柄.
+ *  @param  size            缓冲区大小.
+ */
+RAW_QUIC_API void RawQuicSetSendBufferSize(RawQuicHandle handle, uint32_t size);
+
+/**
+ *  @brief  获取发送缓冲区的大小.
+ *  @param  handle          RawQuic句柄.
+ *  @return 发送缓冲区的大小.
+ */
+RAW_QUIC_API uint32_t RAW_QUIC_CALL RawQuicGetSendBufferSize(RawQuicHandle handle);
+
 #ifdef __cplusplus
 }
 #endif

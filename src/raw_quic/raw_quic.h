@@ -75,7 +75,11 @@ class RawQuic : public quic::QuicTransportClientSession::ClientVisitor,
 
   int32_t Read(uint8_t* data, uint32_t size, int32_t timeout);
 
+  int32_t GetRecvBufferDataSize();
+
   void SetSendBufferSize(uint32_t size);
+
+  uint32_t GetSendBufferSize();
 
   void SetRecvBufferSize(uint32_t size);
 
